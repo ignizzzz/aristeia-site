@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#eceae4">
+<meta name="description" content="ARISTEIA. The Greek Way of Excellence. A Mediterranean brand curating limited harvests from the finest terroirs of Greece.">
+<meta property="og:title" content="ARISTEIA">
+<meta property="og:description" content="The first collection is coming. Three Greek ingredients. Released in limited quantities.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='serif' font-size='24' fill='%232a2a26'%3EA%3C/text%3E%3C/svg%3E">
+<title>ARISTEIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'Cinzel';font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/cinzel/v23/8vIU7ww63mVu7gtR-kwKxNvkNOjw-tbnfY3lCA.woff2) format('woff2')}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{
+  background:#eceae4;
+  color:#2a2a26;
+  font-family:'Instrument Sans',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow:hidden;
+  height:100vh;height:100dvh;
+  position:relative;
+}
+
+/* Noise texture */
+.noise{
+  position:fixed;inset:0;pointer-events:none;z-index:100;opacity:.02;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Frame lines — desktop only */
+@media(min-width:769px){
+  body::before,body::after{
+    content:'';position:fixed;top:0;bottom:0;width:1px;
+    z-index:99;pointer-events:none;background:rgba(42,42,38,.04);
+  }
+  body::before{left:4vw}
+  body::after{right:4vw}
+}
+
+/* ── Monogram ── */
+.mono{
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-family:'Cinzel',serif;
+  font-weight:400;
+  line-height:.82;
+  color:rgba(42,42,38,.03);
+  pointer-events:none;
+  z-index:0;
+  user-select:none;
+  font-size:clamp(28rem,52vw,52rem);
+}
+
+/* ── Main layout ── */
+.page{
+  position:relative;z-index:10;
+  height:100vh;height:100dvh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  padding:2rem 1.5rem;
+}
+
+/* ── Brand ── */
+.by{
+  font-family:'Cormorant',serif;
+  font-style:italic;font-weight:300;
+  font-size:.95rem;
+  color:#a5a098;
+  letter-spacing:.05em;
+  opacity:0;animation:in .8s .3s ease forwards;
+}
+
+.name{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.8rem,5vw,3.8rem);
+  font-weight:400;
+  letter-spacing:clamp(.15em,3vw,.28em);
+  text-transform:uppercase;
+  line-height:1;
+  margin:.15rem 0 0;
+  opacity:0;animation:in 1s .5s ease forwards;
+}
+
+.rule{
+  width:1px;height:32px;
+  background:linear-gradient(transparent,#ccc8c0,transparent);
+  margin:1.8rem auto;
+  opacity:0;animation:in .5s 1s ease forwards;
+}
+
+.tag{
+  font-family:'Cormorant',serif;
+  font-style:italic;font-weight:300;
+  font-size:clamp(.9rem,1.5vw,1.12rem);
+  color:#7a7770;
+  line-height:1.6;
+  max-width:340px;
+  margin:0 auto 2.5rem;
+  opacity:0;animation:in .6s 1.2s ease forwards;
+}
+
+/* ── Countdown ── */
+.cd{
+  display:flex;
+  justify-content:center;
+  gap:clamp(.8rem,3vw,2.8rem);
+  margin-bottom:2.5rem;
+  opacity:0;animation:in .7s 1.5s ease forwards;
+}
+
+.cb{
+  display:flex;flex-direction:column;align-items:center;
+  min-width:clamp(44px,12vw,68px);
+}
+
+.cn{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.5rem,4vw,2.8rem);
+  font-weight:400;
+  letter-spacing:.04em;
+  line-height:1;
+  margin-bottom:.35rem;
+}
+
+.cl{
+  font-size:clamp(.38rem,.9vw,.44rem);
+  font-weight:500;
+  letter-spacing:.25em;
+  text-transform:uppercase;
+  color:#ccc8c0;
+}
+
+.cs{
+  display:flex;align-items:center;
+  padding-bottom:.9rem;
+}
+
+.cs i{
+  display:block;
+  width:2px;height:2px;
+  border-radius:50%;
+  background:#ccc8c0;
+}
+
+/* ── Email form ── */
+.fm{
+  opacity:0;animation:in .6s 1.8s ease forwards;
+  margin-bottom:1rem;
+  width:100%;
+  max-width:380px;
+}
+
+.fr{
+  display:flex;
+  width:100%;
+}
+
+.fr input{
+  flex:1;
+  font-family:'Instrument Sans',sans-serif;
+  font-size:16px; /* prevents iOS zoom */
+  padding:.75rem 1rem;
+  background:rgba(236,234,228,.9);
+  border:1px solid #ccc8c0;
+  border-right:none;
+  border-radius:0; /* iOS fix */
+  color:#2a2a26;
+  outline:none;
+  transition:border-color .3s;
+  -webkit-appearance:none;
+  appearance:none;
+}
+
+.fr input::placeholder{color:#a5a098}
+.fr input:focus{border-color:#7a7770}
+
+.fr button{
+  font-family:'Instrument Sans',sans-serif;
+  font-size:.5rem;
+  font-weight:500;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  padding:.75rem 1.4rem;
+  background:#2a2a26;
+  color:#eceae4;
+  border:1px solid #2a2a26;
+  border-radius:0;
+  cursor:pointer;
+  transition:all .3s;
+  white-space:nowrap;
+  -webkit-appearance:none;
+  appearance:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.fr button:hover,
+.fr button:active{
+  background:#b8a078;
+  border-color:#b8a078;
+  color:#2a2a26;
+}
+
+.fn{
+  font-size:.44rem;
+  color:#ccc8c0;
+  margin-top:.6rem;
+  letter-spacing:.02em;
+}
+
+/* Success state */
+.fm.sent .fr{display:none}
+.fm .ok{display:none;font-family:'Cormorant',serif;font-style:italic;font-size:1rem;color:#7a7770}
+.fm.sent .ok{display:block}
+
+/* ── Bottom bar ── */
+.bt{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:1.5rem clamp(1.5rem,4vw,3rem);
+  z-index:10;
+  opacity:0;animation:in .4s 2s ease forwards;
+}
+
+.bt span{
+  font-size:clamp(.38rem,.7vw,.44rem);
+  font-weight:400;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:#ccc8c0;
+}
+
+.bt .m{
+  font-family:'Cormorant',serif;
+  font-style:italic;
+  font-size:clamp(.65rem,1vw,.75rem);
+  letter-spacing:.02em;
+  color:#a5a098;
+}
+
+@keyframes in{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── Mobile adjustments ── */
+@media(max-width:768px){
+  .page{
+    padding:1.5rem 1.2rem;
+    justify-content:center;
+  }
+  
+  .rule{height:24px;margin:1.4rem auto}
+  .tag{margin-bottom:2rem;max-width:300px}
+  .cd{margin-bottom:2rem}
+  
+  .bt{
+    flex-direction:column;
+    gap:.25rem;
+    padding:1rem;
+  }
+  .bt span:first-child,
+  .bt span:last-child{display:none}
+}
+
+/* Small phones */
+@media(max-width:380px){
+  .name{font-size:1.6rem}
+  .cn{font-size:1.3rem}
+  .tag{font-size:.85rem}
+  .by{font-size:.85rem}
+}
+
+/* Safe area for notch phones */
+@supports(padding:max(0px)){
+  .page{padding-top:max(2rem,env(safe-area-inset-top))}
+  .bt{padding-bottom:max(1.5rem,env(safe-area-inset-bottom))}
+}
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div class="mono" aria-hidden="true">A</div>
+
+<div class="page">
+  <p class="by">by</p>
+  <h1 class="name">Aristeia</h1>
+  <div class="rule"></div>
+  <p class="tag">The first collection is coming.<br>Three Greek ingredients. Released in limited quantities.</p>
+  
+  <div class="cd" role="timer" aria-label="Countdown to launch">
+    <div class="cb"><span class="cn" id="dd">00</span><span class="cl">Days</span></div>
+    <div class="cs"><i></i></div>
+    <div class="cb"><span class="cn" id="hh">00</span><span class="cl">Hours</span></div>
+    <div class="cs"><i></i></div>
+    <div class="cb"><span class="cn" id="mm">00</span><span class="cl">Minutes</span></div>
+    <div class="cs"><i></i></div>
+    <div class="cb"><span class="cn" id="ss">00</span><span class="cl">Seconds</span></div>
+  </div>
+  
+  <div class="fm" id="form">
+    <div class="fr">
+      <input type="email" id="email" placeholder="Enter your email to be notified" autocomplete="email" required>
+      <button type="button" id="btn">Notify Me</button>
+    </div>
+    <p class="fn">Be the first to know when we launch. No spam.</p>
+    <p class="ok">Thank you. We will be in touch.</p>
+  </div>
+</div>
+
+<div class="bt">
+  <span>Zürich, Switzerland</span>
+  <span class="m">The Greek Way of Excellence</span>
+  <span>Est. 2026</span>
+</div>
+
+<script>
+// Countdown — March 28, 2026 00:00 CET
+const T = new Date('2026-03-28T00:00:00+01:00').getTime();
+
+function tick() {
+  const r = Math.max(0, T - Date.now());
+  document.getElementById('dd').textContent = String(Math.floor(r / 864e5)).padStart(2, '0');
+  document.getElementById('hh').textContent = String(Math.floor(r % 864e5 / 36e5)).padStart(2, '0');
+  document.getElementById('mm').textContent = String(Math.floor(r % 36e5 / 6e4)).padStart(2, '0');
+  document.getElementById('ss').textContent = String(Math.floor(r % 6e4 / 1e3)).padStart(2, '0');
+}
+
+tick();
+setInterval(tick, 1000);
+
+// Email signup
+document.getElementById('btn').addEventListener('click', function() {
+  const input = document.getElementById('email');
+  const form = document.getElementById('form');
+  const email = input.value.trim();
+  
+  if (email && email.includes('@') && email.includes('.')) {
+    form.classList.add('sent');
+  } else {
+    input.style.borderColor = '#c0a080';
+    setTimeout(function() { input.style.borderColor = ''; }, 1500);
+  }
+});
+
+// Also handle Enter key
+document.getElementById('email').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    document.getElementById('btn').click();
+  }
+});
+</script>
+
+</body>
+</html>
