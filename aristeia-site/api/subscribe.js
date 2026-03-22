@@ -1,6 +1,7 @@
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 8;
+const MAX_EMAIL_LENGTH = 254;
 const rateLimitStore = new Map();
 
 function getClientIp(req) {
@@ -40,6 +41,17 @@ function cleanupRateLimitStore() {
   }
 }
 
+function json(res, statusCode, payload) {
+  return res.status(statusCode).json(payload);
+}
+
+function normalizeEmail(value) {
+  if (typeof value !== "string") {
+    return "";
+  }
+  return value.trim().toLowerCase();
+}
+
 function parseRequestBody(req) {
   if (!req.body) return {};
   if (typeof req.body === "string") {
@@ -52,22 +64,33 @@ function parseRequestBody(req) {
   return req.body;
 }
 
+function isAllowedOrigin(req) {
+  const allowedOrigin = process.env.ALLOWED_ORIGIN;
+  if (!allowedOrigin) {
+    return true;
+  }
+
+  const origin = req.headers.origin;
+  if (!origin) {
+    return true;
+  }
+
+  return origin === allowedOrigin;
+}
+
 async function saveToSupabase(email, metadata) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const tableName = process.env.SUPABASE_TABLE || "waitlist";
+  const tableName = process.env.SUPABASE_TABLE || "aristeia_waitlist";
 
   if (!supabaseUrl || !supabaseServiceRoleKey) {
-    throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.");
+    return { ok: false, code: "CONFIG_MISSING" };
   }
 
   const endpoint = `${supabaseUrl.replace(/\/$/, "")}/rest/v1/${encodeURIComponent(tableName)}`;
   const payload = {
     email,
-    source: "aristeia-site",
-    ip: metadata.ip,
-    user_agent: metadata.userAgent,
-    created_at: new Date().toISOString()
+    source: "aristeia-site"
   };
 
   const response = await fetch(endpoint, {
@@ -81,12 +104,20 @@ async function saveToSupabase(email, metadata) {
     body: JSON.stringify(payload)
   });
 
-  if (response.ok || response.status === 409) {
-    return;
+  if (response.ok) {
+    return { ok: true, duplicate: false };
+  }
+
+  if (response.status === 409) {
+    return { ok: true, duplicate: true };
   }
 
   const errorBody = await response.text().catch(() => "");
-  throw new Error(`Supabase error (${response.status}): ${errorBody.slice(0, 200)}`);
+  return {
+    ok: false,
+    code: "SUPABASE_ERROR",
+    message: `Supabase error (${response.status}): ${errorBody.slice(0, 200)}`
+  };
 }
 
 module.exports = async function handler(req, res) {
@@ -94,33 +125,53 @@ module.exports = async function handler(req, res) {
 
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
-    return res.status(405).json({ ok: false, error: "Method not allowed." });
+    return json(res, 405, { ok: false, code: "METHOD_NOT_ALLOWED", error: "Method not allowed." });
+  }
+
+  if (!isAllowedOrigin(req)) {
+    return json(res, 403, { ok: false, code: "ORIGIN_NOT_ALLOWED", error: "Request origin is not allowed." });
   }
 
   const ip = getClientIp(req);
   if (isRateLimited(ip)) {
-    return res.status(429).json({ ok: false, error: "Too many requests. Please try again shortly." });
+    return json(res, 429, {
+      ok: false,
+      code: "RATE_LIMITED",
+      error: "Too many requests. Please try again shortly."
+    });
   }
 
   const body = parseRequestBody(req);
-  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+  const email = normalizeEmail(body.email);
   const honeypot = typeof body.company === "string" ? body.company.trim() : "";
   const userAgent = typeof req.headers["user-agent"] === "string" ? req.headers["user-agent"] : null;
 
   // Silent success for bots that fill hidden fields.
   if (honeypot) {
-    return res.status(200).json({ ok: true });
+    return json(res, 200, { ok: true });
   }
 
-  if (!EMAIL_REGEX.test(email)) {
-    return res.status(400).json({ ok: false, error: "Invalid email address." });
+  if (email.length === 0 || email.length > MAX_EMAIL_LENGTH || !EMAIL_REGEX.test(email)) {
+    return json(res, 400, { ok: false, code: "INVALID_EMAIL", error: "Invalid email address." });
   }
 
-  try {
-    await saveToSupabase(email, { ip, userAgent });
-    return res.status(200).json({ ok: true });
-  } catch (error) {
-    console.error("Subscribe failed:", error);
-    return res.status(500).json({ ok: false, error: "Subscription failed. Please try again." });
+  const result = await saveToSupabase(email, { ip, userAgent });
+  if (!result.ok) {
+    if (result.code === "CONFIG_MISSING") {
+      return json(res, 503, {
+        ok: false,
+        code: "SERVICE_UNAVAILABLE",
+        error: "Subscription service is temporarily unavailable."
+      });
+    }
+
+    console.error("Subscribe failed:", result.message);
+    return json(res, 500, {
+      ok: false,
+      code: "SUBSCRIBE_FAILED",
+      error: "Subscription failed. Please try again."
+    });
   }
+
+  return json(res, 200, { ok: true, duplicate: Boolean(result.duplicate) });
 };
